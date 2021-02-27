@@ -1,0 +1,149 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<zabbix_export>
+    <version>5.0</version>
+    <date>2020-12-30T19:47:05Z</date>
+    <groups>
+        <group>
+            <name>Templates</name>
+        </group>
+    </groups>
+    <templates>
+        <template>
+            <template>Nginx status code by Access Log Active</template>
+            <name>Nginx status code by Access Log Active</name>
+            <description>Статус-коды считаются на основе access_log из Nginx в формате json</description>
+            <groups>
+                <group>
+                    <name>Templates</name>
+                </group>
+            </groups>
+            <applications>
+                <application>
+                    <name>Nginx</name>
+                </application>
+            </applications>
+            <items>
+                <item>
+                    <name>Nginx: Status codes 2xx</name>
+                    <type>ZABBIX_ACTIVE</type>
+                    <key>log.count[&quot;{$ACCESS_LOG}&quot;,&quot;status\&quot;:\s\&quot;2[0-9][0-9]&quot;,,,skip,,]</key>
+                    <delay>10s</delay>
+                    <history>14d</history>
+                    <trends>90d</trends>
+                    <applications>
+                        <application>
+                            <name>Nginx</name>
+                        </application>
+                    </applications>
+                </item>
+                <item>
+                    <name>Nginx: Status codes 3xx</name>
+                    <type>ZABBIX_ACTIVE</type>
+                    <key>log.count[&quot;{$ACCESS_LOG}&quot;,&quot;status\&quot;:\s\&quot;3[0-9][0-9]&quot;,,,skip,,]</key>
+                    <delay>10s</delay>
+                    <history>14d</history>
+                    <trends>90d</trends>
+                    <applications>
+                        <application>
+                            <name>Nginx</name>
+                        </application>
+                    </applications>
+                </item>
+                <item>
+                    <name>Nginx: Status codes 4xx</name>
+                    <type>ZABBIX_ACTIVE</type>
+                    <key>log.count[&quot;{$ACCESS_LOG}&quot;,&quot;status\&quot;:\s\&quot;4[0-9][0-9]&quot;,,,skip,,]</key>
+                    <delay>10s</delay>
+                    <history>14d</history>
+                    <trends>90d</trends>
+                    <applications>
+                        <application>
+                            <name>Nginx</name>
+                        </application>
+                    </applications>
+                </item>
+                <item>
+                    <name>Nginx: Status codes 5xx</name>
+                    <type>ZABBIX_ACTIVE</type>
+                    <key>log.count[&quot;{$ACCESS_LOG}&quot;,&quot;status\&quot;:\s\&quot;5[0-9][0-9]&quot;,,,skip,,]</key>
+                    <delay>10s</delay>
+                    <history>14d</history>
+                    <trends>90d</trends>
+                    <applications>
+                        <application>
+                            <name>Nginx</name>
+                        </application>
+                    </applications>
+                    <triggers>
+                        <trigger>
+                            <expression>{last()}&gt;0</expression>
+                            <name>Nginx: Backend problem 5xx</name>
+                            <priority>HIGH</priority>
+                        </trigger>
+                    </triggers>
+                </item>
+                <item>
+                    <name>Nginx: Access log lines</name>
+                    <type>ZABBIX_ACTIVE</type>
+                    <key>log[&quot;{$ACCESS_LOG}&quot;,,,,skip,10]</key>
+                    <delay>10s</delay>
+                    <history>7d</history>
+                    <trends>0</trends>
+                    <value_type>LOG</value_type>
+                    <applications>
+                        <application>
+                            <name>Nginx</name>
+                        </application>
+                    </applications>
+                </item>
+            </items>
+            <tags>
+                <tag>
+                    <tag>app</tag>
+                    <value>nginx</value>
+                </tag>
+            </tags>
+            <macros>
+                <macro>
+                    <macro>{$ACCESS_LOG}</macro>
+                    <value>/var/log/nginx/access.log</value>
+                    <description>Путь до файла access_log</description>
+                </macro>
+                <macro>
+                    <macro>{$STATUS_2XX}</macro>
+                    <value>status&quot;: &quot;2[0-9][0-9]</value>
+                </macro>
+                <macro>
+                    <macro>{$STATUS_3XX}</macro>
+                    <value>status&quot;: &quot;3[0-9][0-9]</value>
+                </macro>
+                <macro>
+                    <macro>{$STATUS_4XX}</macro>
+                    <value>status&quot;: &quot;4[0-9][0-9]</value>
+                </macro>
+                <macro>
+                    <macro>{$STATUS_5XX}</macro>
+                    <value>status&quot;: &quot;5[0-9][0-9]</value>
+                </macro>
+            </macros>
+            <screens>
+                <screen>
+                    <name>Nginx on {HOSTNAME} {HOST.HOST}</name>
+                    <hsize>1</hsize>
+                    <vsize>2</vsize>
+                </screen>
+            </screens>
+        </template>
+    </templates>
+    <triggers>
+        <trigger>
+            <expression>(({Nginx status code by Access Log Active:log.count[&quot;{$ACCESS_LOG}&quot;,&quot;status\&quot;:\s\&quot;4[0-9][0-9]&quot;,,,skip,,].last(5m)} / {Nginx status code by Access Log Active:log.count[&quot;{$ACCESS_LOG}&quot;,&quot;status\&quot;:\s\&quot;2[0-9][0-9]&quot;,,,skip,,].last(5m)}) * 100) &gt; 0.5</expression>
+            <name>Nginx: 4xx is too much</name>
+            <opdata>%</opdata>
+            <status>DISABLED</status>
+            <priority>HIGH</priority>
+            <description>Слишком много 4xx</description>
+            <manual_close>YES</manual_close>
+        </trigger>
+    </triggers>
+</zabbix_export>

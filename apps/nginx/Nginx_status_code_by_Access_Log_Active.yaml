@@ -1,0 +1,111 @@
+zabbix_export:
+  version: '5.0'
+  date: '2020-12-30T19:47:05Z'
+  groups:
+    group:
+      name: Templates
+  templates:
+    template:
+      template: Nginx status code by Access Log Active
+      name: Nginx status code by Access Log Active
+      description: Статус-коды считаются на основе access_log из Nginx в формате json
+      groups:
+        group:
+          name: Templates
+      applications:
+        application:
+          name: Nginx
+      items:
+      - item:
+          name: 'Nginx: Status codes 2xx'
+          type: ZABBIX_ACTIVE
+          key: log.count["{$ACCESS_LOG}","status\":\s\"2[0-9][0-9]",,,skip,,]
+          delay: 10s
+          history: 14d
+          trends: 90d
+          applications:
+            application:
+              name: Nginx
+      - item:
+          name: 'Nginx: Status codes 3xx'
+          type: ZABBIX_ACTIVE
+          key: log.count["{$ACCESS_LOG}","status\":\s\"3[0-9][0-9]",,,skip,,]
+          delay: 10s
+          history: 14d
+          trends: 90d
+          applications:
+            application:
+              name: Nginx
+      - item:
+          name: 'Nginx: Status codes 4xx'
+          type: ZABBIX_ACTIVE
+          key: log.count["{$ACCESS_LOG}","status\":\s\"4[0-9][0-9]",,,skip,,]
+          delay: 10s
+          history: 14d
+          trends: 90d
+          applications:
+            application:
+              name: Nginx
+      - item:
+          name: 'Nginx: Status codes 5xx'
+          type: ZABBIX_ACTIVE
+          key: log.count["{$ACCESS_LOG}","status\":\s\"5[0-9][0-9]",,,skip,,]
+          delay: 10s
+          history: 14d
+          trends: 90d
+          applications:
+            application:
+              name: Nginx
+          triggers:
+            trigger:
+              expression: '{last()}>0'
+              name: 'Nginx: Backend problem 5xx'
+              priority: HIGH
+      - item:
+          name: 'Nginx: Access log lines'
+          type: ZABBIX_ACTIVE
+          key: log["{$ACCESS_LOG}",,,,skip,10]
+          delay: 10s
+          history: 7d
+          trends: '0'
+          value_type: LOG
+          applications:
+            application:
+              name: Nginx
+      tags:
+        tag:
+          tag: app
+          value: nginx
+      macros:
+      - macro:
+          macro: '{$ACCESS_LOG}'
+          value: /var/log/nginx/access.log
+          description: Путь до файла access_log
+      - macro:
+          macro: '{$STATUS_2XX}'
+          value: 'status": "2[0-9][0-9]'
+      - macro:
+          macro: '{$STATUS_3XX}'
+          value: 'status": "3[0-9][0-9]'
+      - macro:
+          macro: '{$STATUS_4XX}'
+          value: 'status": "4[0-9][0-9]'
+      - macro:
+          macro: '{$STATUS_5XX}'
+          value: 'status": "5[0-9][0-9]'
+      screens:
+        screen:
+          name: Nginx on {HOSTNAME} {HOST.HOST}
+          hsize: '1'
+          vsize: '2'
+  triggers:
+    trigger:
+      expression: (({Nginx status code by Access Log Active:log.count["{$ACCESS_LOG}","status\":\s\"4[0-9][0-9]",,,skip,,].last(5m)}
+        / {Nginx status code by Access Log Active:log.count["{$ACCESS_LOG}","status\":\s\"2[0-9][0-9]",,,skip,,].last(5m)})
+        * 100) > 0.5
+      name: 'Nginx: 4xx is too much'
+      opdata: '%'
+      status: DISABLED
+      priority: HIGH
+      description: Слишком много 4xx
+      manual_close: 'YES'

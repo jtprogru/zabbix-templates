@@ -1,0 +1,99 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<zabbix_export>
+    <version>5.0</version>
+    <date>2021-01-04T10:58:02Z</date>
+    <groups>
+        <group>
+            <name>Templates</name>
+        </group>
+    </groups>
+    <templates>
+        <template>
+            <template>DaData</template>
+            <name>DaData</name>
+            <description></description>
+            <groups>
+                <group>
+                    <name>Templates</name>
+                </group>
+            </groups>
+            <applications>
+                <application>
+                    <name>DaData</name>
+                </application>
+                <application>
+                    <name>Zabbix raw item</name>
+                </application>
+            </applications>
+            <items>
+                <item>
+                    <name>DaData</name>
+                    <type>HTTP_AGENT</type>
+                    <key>DaData</key>
+                    <trends>0</trends>
+                    <value_type>TEXT</value_type>
+                    <description>Получаем баланс из личного кабинета DaData через публичный API</description>
+                    <applications>
+                        <application>
+                            <name>Zabbix raw item</name>
+                        </application>
+                    </applications>
+                    <preprocessing>
+                        <step>
+                            <type>JSONPATH</type>
+                            <params>$.body</params>
+                        </step>
+                    </preprocessing>
+                    <timeout>10s</timeout>
+                    <url>https://dadata.ru/api/v2/profile/balance</url>
+                    <headers>
+                        <header>
+                            <name>Authorization</name>
+                            <value>{$DADATA_TOKEN}</value>
+                        </header>
+                        <header>
+                            <name>X-Secret</name>
+                            <value>{$DADATA_SECRET}</value>
+                        </header>
+                    </headers>
+                    <retrieve_mode>BOTH</retrieve_mode>
+                    <output_format>JSON</output_format>
+                </item>
+                <item>
+                    <name>DaData.balance</name>
+                    <type>DEPENDENT</type>
+                    <key>DaData.balance</key>
+                    <delay>0</delay>
+                    <value_type>FLOAT</value_type>
+                    <description>Вычленяем баланс из JSON-объекта</description>
+                    <applications>
+                        <application>
+                            <name>DaData</name>
+                        </application>
+                    </applications>
+                    <preprocessing>
+                        <step>
+                            <type>JSONPATH</type>
+                            <params>$.balance</params>
+                        </step>
+                    </preprocessing>
+                    <master_item>
+                        <key>DaData</key>
+                    </master_item>
+                </item>
+            </items>
+            <macros>
+                <macro>
+                    <macro>{$DADATA_SECRET}</macro>
+                    <value>zzzxxxccc</value>
+                    <description>Header X-Secret for access to API DaData</description>
+                </macro>
+                <macro>
+                    <macro>{$DADATA_TOKEN}</macro>
+                    <value>Token qwerty</value>
+                    <description>Header Authorization token for access to API DaData</description>
+                </macro>
+            </macros>
+        </template>
+    </templates>
+</zabbix_export>

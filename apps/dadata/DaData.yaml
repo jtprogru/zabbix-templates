@@ -1,0 +1,71 @@
+zabbix_export:
+  version: '5.0'
+  date: '2021-01-04T10:58:02Z'
+  groups:
+    group:
+      name: Templates
+  templates:
+    template:
+      template: DaData
+      name: DaData
+      description: ''
+      groups:
+        group:
+          name: Templates
+      applications:
+      - application:
+          name: DaData
+      - application:
+          name: Zabbix raw item
+      items:
+      - item:
+          name: DaData
+          type: HTTP_AGENT
+          key: DaData
+          trends: '0'
+          value_type: TEXT
+          description: Получаем баланс из личного кабинета DaData через публичный
+            API
+          applications:
+            application:
+              name: Zabbix raw item
+          preprocessing:
+            step:
+              type: JSONPATH
+              params: $.body
+          timeout: 10s
+          url: https://dadata.ru/api/v2/profile/balance
+          headers:
+          - header:
+              name: Authorization
+              value: '{$DADATA_TOKEN}'
+          - header:
+              name: X-Secret
+              value: '{$DADATA_SECRET}'
+          retrieve_mode: BOTH
+          output_format: JSON
+      - item:
+          name: DaData.balance
+          type: DEPENDENT
+          key: DaData.balance
+          delay: '0'
+          value_type: FLOAT
+          description: Вычленяем баланс из JSON-объекта
+          applications:
+            application:
+              name: DaData
+          preprocessing:
+            step:
+              type: JSONPATH
+              params: $.balance
+          master_item:
+            key: DaData
+      macros:
+      - macro:
+          macro: '{$DADATA_SECRET}'
+          value: zzzxxxccc
+          description: Header X-Secret for access to API DaData
+      - macro:
+          macro: '{$DADATA_TOKEN}'
+          value: Token qwerty
+          description: Header Authorization token for access to API DaData

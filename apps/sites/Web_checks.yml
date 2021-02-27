@@ -1,0 +1,50 @@
+zabbix_export:
+  version: '5.0'
+  date: '2021-01-19T15:37:53Z'
+  groups:
+    group:
+      name: Templates
+  templates:
+    template:
+      template: Web checks
+      name: Web checks
+      groups:
+        group:
+          name: Templates
+      applications:
+        application:
+          name: Site
+      httptests:
+        httptest:
+          name: Check home page
+          application:
+            name: Site
+          steps:
+            step:
+              name: '{$DOMAIN}'
+              url: '{$PROTOCOL}://{$DOMAIN}/'
+              retrieve_mode: BOTH
+              required: '{$REQUIRED_STRING}'
+              status_codes: '200'
+      macros:
+      - macro:
+          macro: '{$DOMAIN}'
+          value: jtprog.ru
+          description: Домен
+      - macro:
+          macro: '{$PROTOCOL}'
+          value: http
+          description: Протокол подключения
+      - macro:
+          macro: '{$REQUIRED_STRING}'
+          value: © 2021
+          description: Строка которую надо найти на страничке
+  triggers:
+    trigger:
+      expression: '{Web checks:web.test.rspcode[Check home page,{$DOMAIN}].last(#3)}>=500'
+      name: '{$DOMAIN} не открылся'
+      priority: HIGH
+      tags:
+        tag:
+          tag: app
+          value: web

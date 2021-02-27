@@ -1,0 +1,73 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<zabbix_export>
+    <version>5.0</version>
+    <date>2021-01-19T15:37:53Z</date>
+    <groups>
+        <group>
+            <name>Templates</name>
+        </group>
+    </groups>
+    <templates>
+        <template>
+            <template>Web checks</template>
+            <name>Web checks</name>
+            <groups>
+                <group>
+                    <name>Templates</name>
+                </group>
+            </groups>
+            <applications>
+                <application>
+                    <name>Site</name>
+                </application>
+            </applications>
+            <httptests>
+                <httptest>
+                    <name>Check home page</name>
+                    <application>
+                        <name>Site</name>
+                    </application>
+                    <steps>
+                        <step>
+                            <name>{$DOMAIN}</name>
+                            <url>{$PROTOCOL}://{$DOMAIN}/</url>
+                            <retrieve_mode>BOTH</retrieve_mode>
+                            <required>{$REQUIRED_STRING}</required>
+                            <status_codes>200</status_codes>
+                        </step>
+                    </steps>
+                </httptest>
+            </httptests>
+            <macros>
+                <macro>
+                    <macro>{$DOMAIN}</macro>
+                    <value>jtprog.ru</value>
+                    <description>Домен</description>
+                </macro>
+                <macro>
+                    <macro>{$PROTOCOL}</macro>
+                    <value>http</value>
+                    <description>Протокол подключения</description>
+                </macro>
+                <macro>
+                    <macro>{$REQUIRED_STRING}</macro>
+                    <value>© 2021</value>
+                    <description>Строка которую надо найти на страничке</description>
+                </macro>
+            </macros>
+        </template>
+    </templates>
+    <triggers>
+        <trigger>
+            <expression>{Web checks:web.test.rspcode[Check home page,{$DOMAIN}].last(#3)}&gt;=500</expression>
+            <name>{$DOMAIN} не открылся</name>
+            <priority>HIGH</priority>
+            <tags>
+                <tag>
+                    <tag>app</tag>
+                    <value>web</value>
+                </tag>
+            </tags>
+        </trigger>
+    </triggers>
+</zabbix_export>
